@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Gitlab Liveness OK response
+OK_STATUS="{\"status\":\"ok\"}"
+
 printhelp()
 {
 cat << EOF
@@ -18,6 +21,7 @@ required arguments:
 EOF
 }
 
+# Temporary file to save possible error message(s)
 ERRF=`mktemp`
 
 OPTS=`getopt -o t:,h,u:,d -l timeout:,help,url:,--debug -- "$@" 2> $ERRF`
@@ -62,8 +66,11 @@ fi
 
 [ $DEBUG == 1 ] && echo Liveness URL=$URL
 
+# Temporary file to save response
 RESPONSE=`mktemp`
+
 ERRF=`mktemp`
+
 [ $DEBUG == 1 ] && echo Connecting to liveness URL...
 
 wget -nv -T $TIMEOUT -O $RESPONSE $URL 2> $ERRF
@@ -78,21 +85,17 @@ fi
 
 rm $ERRF
 
-LIVENESS_FIELDS=`cat $RESPONSE | jq 'keys' | sed '/\[\|\]/d' | sed s/,//g | xargs`
+RES=`cat $RESPONSE`
 
-[ $DEBUG == 1 ] && echo Parsed liveness fields are: $LIVENESS_FIELDS
+[ $DEBUG == 1 ] && echo Server response was: "$RES"
 
 RETVAL=0
 
-for f in ${LIVENESS_FIELDS}
-do
-    RES=`cat $RESPONSE | jq ."$f".status`
-    [ $DEBUG == 1 ] && echo Liveness field $f had value $RES
-    if [ "$RES" != "\"ok\"" ]
-    then
-        RETVAL=1
-    fi
-done
+# Compare server response to OK response
+if [ "$RES" != "$OK_STATUS" ]
+then
+   RETVAL=1
+fi
 
 cat $RESPONSE
 
@@ -101,4 +104,3 @@ echo
 rm $RESPONSE
 
 exit $RETVAL
-
