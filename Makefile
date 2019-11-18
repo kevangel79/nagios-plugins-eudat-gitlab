@@ -1,15 +1,21 @@
 PKGNAME=nagios-plugins-eudat-gitlab
 SPECFILE=${PKGNAME}.spec
-FILES=Makefile ${SPECFILE} check_gitlab_liveness.sh
+FILES=check_gitlab_liveness.sh ${SPECFILE}
 
 PKGVERSION=$(shell grep -s '^Version:' $(SPECFILE) | sed -e 's/Version:\s*//')
 
+srpm: dist
+	rpmbuild -ts --define='dist .el6' ${PKGNAME}-${PKGVERSION}.tar.gz
+
+rpm: dist
+	rpmbuild -ta ${PKGNAME}-${PKGVERSION}.tar.gz
 
 dist:
 	rm -rf dist
 	mkdir -p dist/${PKGNAME}-${PKGVERSION}
-	cp -pr ${FILES} dist/${PKGNAME}-${PKGVERSION}/.
-	cd dist ; tar cfz ../${PKGNAME}-${PKGVERSION}.tar.gz ${PKGNAME}-${PKGVERSION}
+	cp -pr ${FILES} dist/${PKGNAME}-${PKGVERSION}/
+	tar zcf dist/${PKGNAME}-${PKGVERSION}.tar.gz -C dist ${PKGNAME}-${PKGVERSION}
+	mv dist/${PKGNAME}-${PKGVERSION}.tar.gz .
 	rm -rf dist
 
 sources: dist
