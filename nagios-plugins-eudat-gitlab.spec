@@ -1,9 +1,9 @@
 Name:		nagios-plugins-eudat-gitlab
-Version:	1.0
-Release:	2%{?dist}
-Summary:	Nagios gitlab
+Version:	1.1
+Release:	1%{?dist}
+Summary:	Nagios GitLab liveness probe
 License:	GPLv3+
-Packager:	Themis Zamani <themiszamani@gmail.com>
+Packager:	Kyriakos Gkinis <kyrginis@admin.grnet.gr>
 
 Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
@@ -11,10 +11,9 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}
 
 Requires:	util-linux
 Requires:	wget
-Requires:	jq
 
 %description
-Nagios probes to check functionality of cas server
+Nagios probe to check GitLab health by checking GitLab liveness endpoint
 
 %prep
 %setup -q
@@ -24,7 +23,6 @@ Nagios probes to check functionality of cas server
 %install
 
 install -d %{buildroot}/%{_libexecdir}/argo-monitoring/probes/eudat-gitlab
-install -d %{buildroot}/%{_sysconfdir}/nagios/plugins/eudat-gitlab
 install -m 755 check_gitlab_liveness.sh %{buildroot}/%{_libexecdir}/argo-monitoring/probes/eudat-gitlab/check_gitlab_liveness.sh
 
 %files
@@ -35,12 +33,13 @@ install -m 755 check_gitlab_liveness.sh %{buildroot}/%{_libexecdir}/argo-monitor
 %attr(0755,root,root) /%{_libexecdir}/argo-monitoring/probes/eudat-gitlab/check_gitlab_liveness.sh
 
 %changelog
-* Wed Apr 17 2019 Themis Zamani <themiszamani@gmail.com> - 1.0-1
-- Update package requirements, Kyriakos Gkinis <kyrginis@admin.grnet.gr> 
-- Improve parsing of liveness JSON, Kyriakos Gkinis <kyrginis@admin.grnet.gr> 
-- Added jq to the requirements, Kyriakos Gkinis <kyrginis@admin.grnet.gr> 
+* Mon Nov 18 2019 Kyriakos Gkinis <kyrginis@admin.grnet.gr> - 1.1-1
+- Update probe to the new simpler Gitlab liveness response (after Gitlab 12.4).
+- Remove jq dependency
 
-* Tue Jul 2 2018 Themis Zamani <themiszamani@gmail.com> - 1.0-1
-- Initial version of the package. 
+* Fri Oct 27 2017 Kyriakos Gkinis <kyrginis@admin.grnet.gr> - 0.2-1
+- Improve parsing of liveness JSON
+- Added jq to the requirements
 
-
+* Fri Oct 13 2017 Kyriakos Gkinis <kyrginis@admin.grnet.gr> - 0.1-1
+- Initial version of the package
